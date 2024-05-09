@@ -4,6 +4,7 @@ import ReactPlayer from 'react-player';
 
 import { useSocket } from '../../context/socket';
 import { SOCKET_CONST } from 'app_constants';
+import peer from '../../services/peer';
 
 const Room = () => {
   const { socket } = useSocket();
@@ -15,7 +16,8 @@ const Room = () => {
   }>({ socketId: null, userAlias: null });
   const [myStream, setMyStream] = useState<any>(null);
 
-  const { NEW_USER_JOINED } = SOCKET_CONST;
+  const { NEW_USER_JOINED, CALL_USER, CALL_ACCEPTED, INCOMING_CALL } =
+    SOCKET_CONST;
 
   const handleNewUserJoined = useCallback(({ remoteId, remoteAlias }: any) => {
     setRemoteConnData({ socketId: remoteId, userAlias: remoteAlias });
@@ -27,7 +29,12 @@ const Room = () => {
       video: true,
     });
     setMyStream(_str);
+    const offer = await peer.makeOffer();
+
+    socket.emit(CALL_USER, { to: remoteConnData.socketId, offer });
   };
+
+  const handleIncomingCall = () => {};
 
   useEffect(() => {
     initRoomStream();
@@ -35,6 +42,8 @@ const Room = () => {
 
   useEffect(() => {
     socket.on(NEW_USER_JOINED, handleNewUserJoined);
+    socket.on(INCOMING_CALL, handleIncomingCall);
+
     return () => {
       socket.off(NEW_USER_JOINED, handleNewUserJoined);
     };
