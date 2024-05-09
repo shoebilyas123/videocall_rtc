@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 // Local Imports
 import Lobby from './components/lobby';
 import Room from './components/room';
+import { SocketProvider } from './context/socket';
 
 const router = createBrowserRouter([
   {
@@ -10,13 +11,17 @@ const router = createBrowserRouter([
     element: <Lobby />,
   },
   {
-    path: '/room/:rId',
+    path: '/room',
     element: <Room />,
   },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <SocketProvider>
+      <RouterProvider router={router} />
+    </SocketProvider>
+  );
 }
 
 export default App;
