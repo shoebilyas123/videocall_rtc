@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactPlayer from 'react-player';
+import { FaPhone } from 'react-icons/fa';
 
 import { useSocket } from '../../context/socket';
 import { SOCKET_CONST } from 'app_constants';
 import peer from '../../services/peer';
+import Button from '../atoms/button';
 
 const Room = () => {
   const { socket } = useSocket();
@@ -21,28 +23,44 @@ const Room = () => {
 
   const handleNewUserJoined = useCallback(({ remoteId, remoteAlias }: any) => {
     setRemoteConnData({ socketId: remoteId, userAlias: remoteAlias });
+    console.log('USER JOINED', remoteAlias, remoteId);
+    generateOffer(remoteId);
   }, []);
 
-  const initRoomStream = async () => {
+  const generateOffer = async (_rId: string) => {
+    const offer = await peer.makeOffer();
+    console.log({ offer });
+
+    socket.emit(CALL_USER, { to: _rId, offer });
+  };
+
+  async function initRoom() {
     const _str = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true,
     });
     setMyStream(_str);
-    const offer = await peer.makeOffer();
+  }
+  useEffect(() => {
+    initRoom();
+  }, []);
 
-    socket.emit(CALL_USER, { to: remoteConnData.socketId, offer });
+  const handleIncomingCall = async ({ offer, from }: any) => {
+    const answer = await peer.makeAnswer(offer);
+    console.log({ answer });
+    socket.emit(CALL_ACCEPTED, { to: from, answer });
   };
 
-  const handleIncomingCall = () => {};
-
-  useEffect(() => {
-    initRoomStream();
-  }, [remoteConnData, roomNumber, userAlias]);
+  const handleCallAccepted = async ({ from, answer }: any) => {
+    console.log(myStream, from, answer);
+    await peer.setLocalDescription(answer);
+    console.log(myStream);
+  };
 
   useEffect(() => {
     socket.on(NEW_USER_JOINED, handleNewUserJoined);
     socket.on(INCOMING_CALL, handleIncomingCall);
+    socket.on(CALL_ACCEPTED, handleCallAccepted);
 
     return () => {
       socket.off(NEW_USER_JOINED, handleNewUserJoined);
@@ -57,15 +75,27 @@ const Room = () => {
           ? `Connected To ${remoteConnData.userAlias}`
           : `Room Empty`}
       </h2>
-      {myStream ? (
-        <ReactPlayer
-          autoPlay
-          playing
-          width={'400'}
-          height={'245'}
-          url={myStream}
-        />
-      ) : null}
+      <div className="w-full flex items-center">
+        {myStream ? (
+          <ReactPlayer
+            autoPlay
+            playing
+            width={'400'}
+            height={'245'}
+            url={myStream}
+          />
+        ) : null}
+
+        {myStream ? (
+          <ReactPlayer
+            autoPlay
+            playing
+            width={'400'}
+            height={'245'}
+            url={myStream}
+          />
+        ) : null}
+      </div>
     </div>
   );
 };

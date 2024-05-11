@@ -1,3 +1,11 @@
+TODO: HIGH PRIORITY => Build the MVP
+TODO: Add Cypress Testing
+TODO: Learn SSH before deploying to AWS.
+TODO: Deploy the SigServer to AWS
+TODO: Deploy React App to GithubPages
+TODO: Document the architecture of the whole application
+TODO: Learn GithubActions and add some features using GithubActions.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -22,7 +30,7 @@ export default {
     project: ['./tsconfig.json', './tsconfig.node.json'],
     tsconfigRootDir: __dirname,
   },
-}
+};
 ```
 
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`

@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon index.ts"
   },
   "keywords": [],
   "author": "",

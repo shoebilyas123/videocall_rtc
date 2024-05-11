@@ -1,15 +1,16 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import app_consts from 'app_constants';
+import dotenv from 'dotenv';
 
-// TODO: CONFIGURE dotenv.config({});
+dotenv.config({});
 
 const _httpServer = createServer();
 
 const io = new Server(_httpServer, {
   cors: {
-    origin: 'http://localhost:5173  ',
-    methods: ['GET', 'POST'],
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    methods: process.env.CORS_METHODS.split('/') || ['GET', 'POST'],
   },
 });
 
@@ -47,6 +48,7 @@ io.on('connection', (socket) => {
     io.to(to).emit(INCOMING_CALL, { offer, from: socket.id });
   });
   socket.on(CALL_ACCEPTED, ({ to, answer }) => {
+    console.log(answer);
     io.to(to).emit(CALL_ACCEPTED, { from: socket.id, answer });
   });
   socket.on(PEER_NEG_NEEDED, ({ to, offer }) => {
